@@ -1,35 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const bodyParser = require("body-parser");
 
-router.get("/", (req, res) => {
-  res.send(
-    "This is the login page. Use POST request to submit the login form."
-  );
-});
+// Use body-parser middleware to parse form data
+router.use(bodyParser.urlencoded({ extended: true }));
 
+// Handle the login form submission
 router.post("/submit", (req, res) => {
-  const data = [];
-  req.on("data", (chunk) => {
-    data.push(chunk);
-  });
+  const { username, password } = req.body;
 
-  req.on("end", () => {
-    const formData = Buffer.concat(data).toString();
-    const parsedFormData = new URLSearchParams(formData);
-
-    const username = parsedFormData.get("username");
-    const password = parsedFormData.get("password");
-
-    // Add your authentication logic here
-    // For simplicity, we'll just check if the username and password are not empty
-    if (username && password) {
-      res.send(
-        `Login successful. Username: ${username}, Password: ${password}`
-      );
-    } else {
-      res.status(400).send("Invalid login credentials");
-    }
-  });
+  // Add your authentication logic here
+  // For simplicity, we'll just check if the username and password are not empty
+  if (username && password) {
+    res.send(`Login successful. Username: ${username}, Password: ${password}`);
+  } else {
+    res.status(400).send("Invalid login credentials");
+  }
 });
 
 module.exports = router;
