@@ -1,13 +1,15 @@
 import express from "express";
 import {
-  loginWithChulaID,
-  loginwithIDCard,
+  login,
   signinwithChulaID,
+  logout,
+  signinwithIDCard,
 } from "../controller/auth.js";
 const router = express.Router();
 
-router.post("/loginWithChulaID", loginWithChulaID);
-router.post("/loginwithIDCard", loginwithIDCard);
+router.post("/login", login);
 router.post("/signinwithChulaID", signinwithChulaID);
+router.post("/signinwithIDCard", signinwithIDCard);
+router.post("/logout", logout);
 
 export default router;

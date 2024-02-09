@@ -4,7 +4,15 @@ import { Schema } from "mongoose";
 const userSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, require: true },
-  pictures: [String],
+  name: { type: String, require: true },
+  surname: { type: String, require: true },
+  idCard: { type: String },
+  chulaID: { type: String },
+  gender: { type: String, require: true },
+  type: { type: String, require: true },
+  phone: { type: String, require: true },
+  birthday: { type: Date, require: true },
+  mediclaRecord: { type: String, require: true },
 });
 
 const User = mongoose.model("User", userSchema);
