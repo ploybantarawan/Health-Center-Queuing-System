@@ -12,6 +12,8 @@ const userSchema = new Schema({
   type: { type: String, require: true },
   phone: { type: String, require: true },
   birthday: { type: Date, require: true },
+  email: { type: String },
+  address: { type: String },
   mediclaRecord: { type: String, require: true },
 });
 

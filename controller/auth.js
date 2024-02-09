@@ -53,6 +53,8 @@ export const signinwithChulaID = (req, res) => {
   const type = req.body.type;
   const idCard = req.body.idCard;
   const birthday = req.body.birthday;
+  const email = req.body.email;
+  const address = req.body.address;
   const mediclaRecord = req.body.mediclaRecord;
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(req.body.password, salt);
@@ -84,6 +86,8 @@ export const signinwithChulaID = (req, res) => {
           type: type,
           phone: phone,
           birthday: birthday,
+          email: email,
+          address: address,
           mediclaRecord: mediclaRecord,
         })
           .then((data) => {
@@ -112,6 +116,8 @@ export const signinwithIDCard = (req, res) => {
   const gender = req.body.gender;
   const type = req.body.type;
   const birthday = req.body.birthday;
+  const email = req.body.email;
+  const address = req.body.address;
   const mediclaRecord = req.body.mediclaRecord;
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(req.body.password, salt);
@@ -143,6 +149,8 @@ export const signinwithIDCard = (req, res) => {
           type: type,
           phone: phone,
           birthday: birthday,
+          email: email,
+          address: address,
           mediclaRecord: mediclaRecord,
         })
           .then((data) => {
