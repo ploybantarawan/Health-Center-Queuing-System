@@ -7,31 +7,19 @@ export const getmedicalhistory = (req, res) => {
   const token = req.cookies.accessToken;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
-    const q =
-      "INSERT INTO Exchange (`itemID`, `userID`, `accountID`, `dateExchange`) VALUES (?)";
-    const values = [
-      req.body.itemID,
-      req.body.userID,
-      userInfo.id,
-      moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-    ];
-    db.query(q, [values], (err, data) => {
-      if (err) return res.status(500).json(err);
-      return res.status(200).json("item has been exchange.");
+    User.findOne({ _id: userInfo.id }).then((data) => {
+      return res.status(200).send(data);
     });
   });
 };
 
 export const updateMedicalhistory = (req, res) => {
   const token = req.cookies.accessToken;
-  const body = Object.keys(req.body);
-  console.log(body);
-  jwt.verify(token, "secretkey", (err, userInfo) => {
-    User.find()
-      .and({ _id: userInfo.id })
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+    User.findByIdAndUpdate(userInfo.id, req.body)
       .then((data) => {
-        const info = data[0];
-        console.log(info);
+        return res.status(200).json("update successful");
       })
       .catch((err) => {
         console.log(err);
@@ -41,16 +29,71 @@ export const updateMedicalhistory = (req, res) => {
 };
 
 export const reservation = (req, res) => {
-  const symtoms = req.body.symtoms;
-  const date = req.body.date;
-  const month = req.body.month;
-  const year = req.body.year;
-  const timeslot = req.body.timeslot;
-  res.send(
-    `Form submitted with symtoms: ${symtoms}, date: ${date}, month: ${month}, year: ${year}, timeslot: ${timeslot}`
-  );
+  const token = req.cookies.accessToken;
+  jwt
+    .verify(token, "secretkey", async (err, userInfo) => {
+      if (err) return res.status(403).json("Token is not valid!");
+      const symptoms = req.body.symtoms;
+      const date = req.body.date;
+      const time = req.body.time;
+      const doctor = req.body.doctor;
+
+      App.findOne()
+        .and([{ date: date }, { time: time }])
+        .then((data) => {
+          if (data != null)
+            return res.status(404).json("timeslot is not aviable");
+          User.find({ _id: userInfo.id })
+            .then((data) => {
+              App.create({
+                userID: userInfo.id,
+                name: data[0].name,
+                surname: data[0].surname,
+                symptoms: symptoms,
+                date: date,
+                time: time,
+                doctor: doctor,
+              })
+                .then((data) => {
+                  // console.log(data);
+                  return res
+                    .status(200)
+                    .json(
+                      `reservation sucessful with date: ${date}, time: ${time}`
+                    );
+                })
+                .catch((err) => {
+                  console.log(err);
+                  return res.status(500).json(err);
+                });
+            })
+            .catch((err) => {
+              console.log(err);
+              return res.status(500).json(err);
+            });
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json(err);
+    });
 };
 
-export const getReservation = (req, res) => {
-  res.send(`this is your appointment`);
+export const getUserReservation = (req, res) => {
+  const token = req.cookies.accessToken;
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+    App.find({ userID: userInfo.id })
+      .then((data) => {
+        if (data.length) {
+          return res.status(200).send(data);
+        } else {
+          return res.status(200).json("No appointment");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json(err);
+      });
+  });
 };

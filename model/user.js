@@ -11,7 +11,7 @@ const userSchema = new Schema({
   gender: { type: String, require: true },
   type: { type: String, require: true },
   phone: { type: String, require: true },
-  birthday: { type: Date, require: true },
+  birthday: { type: String, require: true },
   email: { type: String },
   address: { type: String },
   mediclaRecord: { type: String, require: true },
