@@ -112,6 +112,7 @@ export const addDoctor = (req, res) => {
     const specialist = req.body.specialist;
     const workday = req.body.workday;
     const worktime = req.body.worktime;
+    const phone = req.body.phone;
     Doc.create({
       docID: docID,
       status: status,
@@ -120,6 +121,7 @@ export const addDoctor = (req, res) => {
       specialist: specialist,
       workday: workday,
       worktime: worktime,
+      phone: phone,
     })
       .then((data) => {
         return res.status(200).json(data);
