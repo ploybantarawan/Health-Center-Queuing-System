@@ -25,7 +25,10 @@ export const login = (req, res) => {
         res
           .cookie("accessToken", token, { httpOnly: true })
           .status(200)
-          .json(`Login successful with username: ${username}`);
+          .json({
+            msg: `Login successful with username: ${username}`,
+            token: token,
+          });
       } else {
         res.status(401).json("Invalid credentials");
       }
@@ -97,9 +100,10 @@ export const signinwithChulaID = (req, res) => {
           .catch((err) => {
             console.log(err);
           });
-        return res
-          .status(200)
-          .json(`Sign in successful with Username: ${username}`);
+        return res.status(200).json({
+          msg: `Sign successful with username: ${username}`,
+          token: token,
+        });
       }
     })
     .catch((err) => {
@@ -160,9 +164,10 @@ export const signinwithIDCard = (req, res) => {
           .catch((err) => {
             console.log(err);
           });
-        return res
-          .status(200)
-          .json(`Form submitted with Username: ${username}`);
+        return res.status(200).json({
+          msg: `Sign successful with username: ${username}`,
+          token: token,
+        });
       }
     })
     .catch((err) => {
@@ -220,9 +225,10 @@ export const signinwithEmail = (req, res) => {
           .catch((err) => {
             console.log(err);
           });
-        return res
-          .status(200)
-          .json(`Form submitted with Username: ${username}`);
+        return res.status(200).json({
+          msg: `Sign in successful with username: ${username}`,
+          token: token,
+        });
       }
     })
     .catch((err) => {
@@ -270,9 +276,10 @@ export const staffSignin = (req, res) => {
           .catch((err) => {
             console.log(err);
           });
-        return res
-          .status(200)
-          .json(`Form submitted with Username: ${username}`);
+        return res.status(200).json({
+          msg: `Sign in successful with username: ${username}`,
+          token: token,
+        });
       }
     })
     .catch((err) => {
@@ -301,7 +308,10 @@ export const loginStaff = (req, res) => {
         res
           .cookie("accessToken", token, { httpOnly: true })
           .status(200)
-          .json(`Login successful with username: ${username}`);
+          .json({
+            msg: `Login successful with username: ${username}`,
+            token: token,
+          });
       } else {
         res.status(401).json("Invalid credentials");
       }
@@ -351,7 +361,10 @@ export const docSignin = (req, res) => {
           .catch((err) => {
             console.log(err);
           });
-        return res.status(200).json(`Form submitted with Username: ${docID}`);
+        return res.status(200).json({
+          msg: `Sign in with Username: ${docID}`,
+          token: token,
+        });
       }
     })
     .catch((err) => {
@@ -380,7 +393,10 @@ export const loginDoc = (req, res) => {
         res
           .cookie("accessToken", token, { httpOnly: true })
           .status(200)
-          .json(`Login successful with username: ${docID}`);
+          .json({
+            msg: `Login with Username: ${docID}`,
+            token: token,
+          });
       } else {
         res.status(401).json("Invalid credentials");
       }
