@@ -4,7 +4,7 @@ import User from "../model/user.js";
 import jwt from "jsonwebtoken";
 
 export const getmedicalhistory = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     User.findOne({ _id: userInfo.id }).then((data) => {
@@ -14,7 +14,7 @@ export const getmedicalhistory = (req, res) => {
 };
 
 export const updateMedicalhistory = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", async (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     User.findByIdAndUpdate(userInfo.id, req.body)
@@ -29,7 +29,7 @@ export const updateMedicalhistory = (req, res) => {
 };
 
 export const reservation = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt
     .verify(token, "secretkey", async (err, userInfo) => {
       if (err) return res.status(403).json("Token is not valid!");
@@ -80,7 +80,7 @@ export const reservation = (req, res) => {
 };
 
 export const getUserReservation = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     App.find({ userID: userInfo.id })
