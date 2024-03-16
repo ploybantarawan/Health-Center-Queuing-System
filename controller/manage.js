@@ -2,10 +2,12 @@ import { db } from "../service/db.js";
 import App from "../model/app.js";
 import Doc from "../model/doc.js";
 import User from "../model/user.js";
+import Staff from "../model/staff.js";
 import jwt from "jsonwebtoken";
+import { checkDoc, checkStaff } from "../middleware/tokenCheck.js";
 
 export const getAllReservation = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const month = req.body.month;
@@ -26,7 +28,7 @@ export const getAllReservation = (req, res) => {
 };
 
 export const getTimeslot = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const date = req.body.date;
@@ -48,7 +50,7 @@ export const getTimeslot = (req, res) => {
 };
 
 export const getAllDoctor = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     Doc.find()
@@ -67,10 +69,11 @@ export const getAllDoctor = (req, res) => {
 };
 
 export const getDoctorTimetable = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const date = req.body.date;
+    const status = req.body.status;
     Doc.find()
       .and({ status: req.body.status })
       .then((data) => {
@@ -102,9 +105,12 @@ export const getDoctorTimetable = (req, res) => {
 };
 
 export const addDoctor = (req, res) => {
-  const token = req.cookies.accessToken;
-  jwt.verify(token, "secretkey", (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!");
+  const token = req.body.token;
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    const isDoc = await checkDoc(userInfo.id);
+    const isStaff = await checkStaff(userInfo.id);
+    if (!isDoc && !isStaff) return res.status(403).json("Unauthorise");
+
     const docID = req.body.docID;
     const status = req.body.status;
     const name = req.body.name;
@@ -134,9 +140,12 @@ export const addDoctor = (req, res) => {
 };
 
 export const updateDoctor = (req, res) => {
-  const token = req.cookies.accessToken;
+  const token = req.body.token;
   jwt.verify(token, "secretkey", async (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!");
+    const isDoc = await checkDoc(userInfo.id);
+    const isStaff = await checkStaff(userInfo.id);
+    if (!isDoc && !isStaff) return res.status(403).json("Unauthorise");
+
     const docID = req.body.docID;
     Doc.findOneAndUpdate({ docID: docID }, req.body)
       .then((data) => {
@@ -150,9 +159,12 @@ export const updateDoctor = (req, res) => {
 };
 
 export const getTodayPatientDoc = (req, res) => {
-  const token = req.cookies.accessToken;
-  jwt.verify(token, "secretkey", (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!");
+  const token = req.body.token;
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    const isDoc = await checkDoc(userInfo.id);
+    const isStaff = await checkStaff(userInfo.id);
+    if (!isDoc && !isStaff) return res.status(403).json("Unauthorise");
+
     const date = req.body.date;
     const doc = req.body.doctor;
     App.find()

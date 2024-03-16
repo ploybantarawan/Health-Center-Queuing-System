@@ -101,7 +101,7 @@ export const signinwithChulaID = (req, res) => {
             console.log(err);
           });
         return res.status(200).json({
-          msg: `Sign successful with username: ${username}`,
+          msg: `Sign in successful with username: ${username}`,
           token: token,
         });
       }
@@ -165,7 +165,7 @@ export const signinwithIDCard = (req, res) => {
             console.log(err);
           });
         return res.status(200).json({
-          msg: `Sign successful with username: ${username}`,
+          msg: `Sign in successful with username: ${username}`,
           token: token,
         });
       }
