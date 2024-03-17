@@ -2,6 +2,7 @@ import { db } from "../service/db.js";
 import App from "../model/app.js";
 import User from "../model/user.js";
 import jwt from "jsonwebtoken";
+import docTypeCheck from "../middleware/docTypeCheck.js";
 
 export const getmedicalhistory = (req, res) => {
   const token = req.body.token;
@@ -49,13 +50,19 @@ export const reservation = async (req, res) => {
       const symptoms = req.body.symptoms;
       const date = req.body.date;
       const time = req.body.time;
+      const department = req.body.department;
       const doctor = req.body.doctor;
+      const cause = req.body.cause;
+      const period = req.body.period;
+      const fever = req.body.fever;
+      // const count = await App.find().countDocuments([
+      //   { date: date },
+      //   { time: time },
+      // ]);
+      // if (count >= 7) return res.status(404).json("timeslot is not aviable");
 
-      const count = await App.find().countDocuments([
-        { date: date },
-        { time: time },
-      ]);
-      if (count >= 7) return res.status(404).json("timeslot is not aviable");
+      const docCheck = await docTypeCheck(date, time, department);
+      if (!docCheck) return res.status(404).json("timeslot is not aviable");
 
       App.findOne()
         .and([{ date: date }, { time: time }])
@@ -67,6 +74,10 @@ export const reservation = async (req, res) => {
                 name: data[0].name,
                 surname: data[0].surname,
                 symptoms: symptoms,
+                cause: cause,
+                period: period,
+                fever: fever,
+                department: department,
                 date: date,
                 time: time,
                 doctor: doctor,
