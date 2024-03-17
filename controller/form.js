@@ -2,6 +2,7 @@ import { db } from "../service/db.js";
 import App from "../model/app.js";
 import User from "../model/user.js";
 import jwt from "jsonwebtoken";
+import docTypeCheck from "../middleware/docTypeCheck.js";
 
 export const getmedicalhistory = (req, res) => {
   const token = req.body.token;
@@ -28,21 +29,44 @@ export const updateMedicalhistory = (req, res) => {
   });
 };
 
-export const reservation = (req, res) => {
+export const countReservation = async (req, res) => {
+  const token = req.body.token;
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    const date = req.body.date;
+    const time = req.body.time;
+    const count = await App.find().countDocuments([
+      { date: date },
+      { time: time },
+    ]);
+    return res.status(404).json(count);
+  });
+};
+
+export const reservation = async (req, res) => {
   const token = req.body.token;
   jwt
     .verify(token, "secretkey", async (err, userInfo) => {
       if (err) return res.status(403).json("Token is not valid!");
-      const symptoms = req.body.symtoms;
+      const symptoms = req.body.symptoms;
       const date = req.body.date;
       const time = req.body.time;
+      const department = req.body.department;
       const doctor = req.body.doctor;
+      const cause = req.body.cause;
+      const period = req.body.period;
+      const fever = req.body.fever;
+      // const count = await App.find().countDocuments([
+      //   { date: date },
+      //   { time: time },
+      // ]);
+      // if (count >= 7) return res.status(404).json("timeslot is not aviable");
+
+      const docCheck = await docTypeCheck(date, time, department);
+      if (!docCheck) return res.status(404).json("timeslot is not aviable");
 
       App.findOne()
         .and([{ date: date }, { time: time }])
         .then((data) => {
-          if (data != null)
-            return res.status(404).json("timeslot is not aviable");
           User.find({ _id: userInfo.id })
             .then((data) => {
               App.create({
@@ -50,6 +74,10 @@ export const reservation = (req, res) => {
                 name: data[0].name,
                 surname: data[0].surname,
                 symptoms: symptoms,
+                cause: cause,
+                period: period,
+                fever: fever,
+                department: department,
                 date: date,
                 time: time,
                 doctor: doctor,
