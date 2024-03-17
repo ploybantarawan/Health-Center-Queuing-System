@@ -28,21 +28,38 @@ export const updateMedicalhistory = (req, res) => {
   });
 };
 
-export const reservation = (req, res) => {
+export const countReservation = async (req, res) => {
+  const token = req.body.token;
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    const date = req.body.date;
+    const time = req.body.time;
+    const count = await App.find().countDocuments([
+      { date: date },
+      { time: time },
+    ]);
+    return res.status(404).json(count);
+  });
+};
+
+export const reservation = async (req, res) => {
   const token = req.body.token;
   jwt
     .verify(token, "secretkey", async (err, userInfo) => {
       if (err) return res.status(403).json("Token is not valid!");
-      const symptoms = req.body.symtoms;
+      const symptoms = req.body.symptoms;
       const date = req.body.date;
       const time = req.body.time;
       const doctor = req.body.doctor;
 
+      const count = await App.find().countDocuments([
+        { date: date },
+        { time: time },
+      ]);
+      if (count >= 7) return res.status(404).json("timeslot is not aviable");
+
       App.findOne()
         .and([{ date: date }, { time: time }])
         .then((data) => {
-          if (data != null)
-            return res.status(404).json("timeslot is not aviable");
           User.find({ _id: userInfo.id })
             .then((data) => {
               App.create({
