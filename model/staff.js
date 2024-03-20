@@ -9,8 +9,8 @@ const staffSchema = new Schema({
   chulaID: { type: String },
   gender: { type: String, require: true },
   type: { type: String, require: true },
-  phone: { type: String, require: true },
-  birthday: { type: String, require: true },
+  phone: { type: String },
+  birthday: { type: String },
   email: { type: String },
 });
 
