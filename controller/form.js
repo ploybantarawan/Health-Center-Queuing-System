@@ -31,15 +31,21 @@ export const updateMedicalhistory = (req, res) => {
 
 export const countReservation = async (req, res) => {
   const token = req.body.token;
-  jwt.verify(token, "secretkey", async (err, userInfo) => {
-    const date = req.body.date;
-    const time = req.body.time;
-    const count = await App.find().countDocuments([
-      { date: date },
-      { time: time },
-    ]);
-    return res.status(404).json(count);
-  });
+  jwt
+    .verify(token, "secretkey", async (err, userInfo) => {
+      if (err) return res.status(403).json("Token is not valid!");
+      const date = req.body.date;
+      const time = req.body.time;
+      const count = await App.find().countDocuments([
+        { date: date },
+        { time: time },
+      ]);
+      return res.status(200).json(count);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json(err);
+    });
 };
 
 export const reservation = async (req, res) => {
@@ -116,7 +122,7 @@ export const getUserReservation = (req, res) => {
         if (data.length) {
           return res.status(200).send(data);
         } else {
-          return res.status(200).json("No appointment");
+          return res.status(201).json("No appointment");
         }
       })
       .catch((err) => {

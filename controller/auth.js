@@ -134,7 +134,7 @@ export const signinwithIDCard = (req, res) => {
     return username.length == 13;
   }
   if (!checkStrDigit(username) || !checklength(username))
-    return res.status(404).json("Invalid ID Card Number");
+    return res.status(401).json("Invalid ID Card Number");
 
   User.find()
     .and({ username: username })
@@ -195,7 +195,7 @@ export const signinwithEmail = (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-  if (!isValidEmail(username)) return res.status(404).json("Invalid email");
+  if (!isValidEmail(username)) return res.status(401).json("Invalid email");
 
   User.find()
     .and({ username: username })
