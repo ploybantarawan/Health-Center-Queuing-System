@@ -5,7 +5,7 @@ export async function docTypeCheck(date, time, department) {
     const count = await App.find({ date: date }, { time: time }).countDocuments(
       { department: department }
     );
-
+      
     if ((department = "GP")) {
       if (count >= 11) return false;
     }

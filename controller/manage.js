@@ -17,7 +17,7 @@ export const getAllReservation = (req, res) => {
         if (data.length) {
           return res.status(200).json(data);
         } else {
-          return res.status(200).json("No appointment");
+          return res.status(201).json("No appointment");
         }
       })
       .catch((err) => {
@@ -39,7 +39,7 @@ export const getTimeslot = (req, res) => {
         if (data.length) {
           return res.status(200).json(data);
         } else {
-          return res.status(200).json("No appointment");
+          return res.status(201).json("No appointment");
         }
       })
       .catch((err) => {
@@ -58,7 +58,7 @@ export const getAllDoctor = (req, res) => {
         if (data.length) {
           return res.status(200).json(data);
         } else {
-          return res.status(200).json("No doctor");
+          return res.status(201).json("No doctor");
         }
       })
       .catch((err) => {
@@ -91,10 +91,10 @@ export const getDoctorTimetable = (req, res) => {
           if (doc.length) {
             return res.status(200).send(doc);
           } else {
-            return res.status(200).json("No doctor");
+            return res.status(201).json("No doctor");
           }
         } else {
-          return res.status(200).json("No doctor");
+          return res.status(201).json("No doctor");
         }
       })
       .catch((err) => {
@@ -173,7 +173,7 @@ export const getTodayPatientDoc = (req, res) => {
         if (data.length) {
           return res.status(200).json(data);
         } else {
-          return res.status(200).json("No appointment");
+          return res.status(201).json("No appointment");
         }
       })
       .catch((err) => {
