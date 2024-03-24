@@ -6,9 +6,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const login = (req, res) => {
-  const username = req.body.username;
+  const username = req.body.UserID;
   const password = req.body.password;
-
   User.find()
     .and({ username: username })
     .then(async (data) => {
@@ -166,7 +165,7 @@ export const signinwithIDCard = (req, res) => {
           });
         return res.status(200).json({
           msg: `Sign in successful with username: ${username}`,
-          token: token,
+          // token: token,
         });
       }
     })
@@ -177,19 +176,23 @@ export const signinwithIDCard = (req, res) => {
 };
 
 export const signinwithEmail = (req, res) => {
-  const username = req.body.username;
-  const name = req.body.name;
-  const phone = req.body.phone;
-  const surname = req.body.surname;
-  const chulaID = req.body.chulaID;
-  const gender = req.body.gender;
-  const type = req.body.type;
-  const birthday = req.body.birthday;
+  // ไม่มี DB เก็บ Prefix
   const email = req.body.email;
+  const username = email;
+  const name = req.body.first_name;
+  const phone = req.body.phone;
+  const surname = req.body.last_name;
+  const chulaID = req.body.patientId;
+  const idCard = req.body.national_id;
+  const gender = req.body.gender;
+  const type = req.body.civil;
+  const birthday = req.body.birthday;
+  
   const address = req.body.address;
   const mediclaRecord = req.body.mediclaRecord;
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+  console.log(req.body);
 
   function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -202,33 +205,35 @@ export const signinwithEmail = (req, res) => {
     .then((data) => {
       console.log(data);
       if (data.length != 0) {
-        return res.status(404).json("the username is already been use");
+        return res.status(409).json("the username is already been use");
       } else {
         User.create({
           username: username,
           password: hashedPassword,
           name: name,
           surname: surname,
-          idCard: username,
+          idCard: idCard,
           chulaID: chulaID,
           gender: gender,
           type: type,
           phone: phone,
           birthday: birthday,
-          email: username,
+          email: email,
           address: address,
           mediclaRecord: mediclaRecord,
         })
           .then((data) => {
             console.log(data);
+            const token = jwt.sign({ id: data.id }, "secretkey");
+            return res.status(200).json({
+              msg: `Sign in successful with username: ${username}`,
+              token: token,
+            });
           })
           .catch((err) => {
             console.log(err);
           });
-        return res.status(200).json({
-          msg: `Sign in successful with username: ${username}`,
-          token: token,
-        });
+        
       }
     })
     .catch((err) => {
@@ -238,48 +243,40 @@ export const signinwithEmail = (req, res) => {
 };
 
 export const staffSignin = (req, res) => {
-  const username = req.body.username;
-  const name = req.body.name;
-  const phone = req.body.phone;
-  const surname = req.body.surname;
-  const chulaID = req.body.chulaID;
-  const gender = req.body.gender;
-  const type = req.body.type;
-  const birthday = req.body.birthday;
-  const email = req.body.email;
+  // staffID is Username for login
+  const { first_name , staffID, last_name, gender, phone, password} = req.body;
   const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-
+  const hashedPassword = bcrypt.hashSync(password, salt);
   Staff.find()
-    .and({ username: username })
+    .and({ username: staffID })
     .then((data) => {
       console.log(data);
       if (data.length != 0) {
         return res.status(404).json("the username is already been use");
       } else {
         Staff.create({
-          username: username,
+          username: staffID,
           password: hashedPassword,
-          name: name,
-          surname: surname,
-          idCard: username,
-          chulaID: chulaID,
-          gender: gender,
-          type: type,
-          phone: phone,
-          birthday: birthday,
-          email: email,
+          name: first_name,
+          surname: last_name,
+          gender,
+          phone,
+          email: '',
         })
           .then((data) => {
             console.log(data);
+            const token = jwt.sign({ id: data.id }, "secretkey");
+            return res.status(200).json({
+              msg: `Sign in successful with username as StaffID: ${staffID}`,
+              token: token,
+              user: data
+            });
           })
           .catch((err) => {
             console.log(err);
+            return res.status(500).json(err)
           });
-        return res.status(200).json({
-          msg: `Sign in successful with username: ${username}`,
-          token: token,
-        });
+        
       }
     })
     .catch((err) => {
@@ -291,7 +288,6 @@ export const staffSignin = (req, res) => {
 export const loginStaff = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-
   Staff.find()
     .and({ username: username })
     .then(async (data) => {
@@ -323,10 +319,12 @@ export const loginStaff = (req, res) => {
 };
 
 export const docSignin = (req, res) => {
+  console.log(req.body);
+  // Department ไม่มี ไม่รู้จะเอาใว้ Column ไหน
   const docID = req.body.docID;
   const status = req.body.status;
-  const name = req.body.name;
-  const surname = req.body.surname;
+  const name = req.body.first_name;
+  const surname = req.body.last_name;
   const gender = req.body.gender;
   const specialist = req.body.specialist;
   const workday = req.body.workday;
@@ -334,7 +332,6 @@ export const docSignin = (req, res) => {
   const phone = req.body.phone;
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-
   Doc.find()
     .and({ docID: docID })
     .then((data) => {
@@ -357,14 +354,16 @@ export const docSignin = (req, res) => {
           .then((data) => {
             console.log("lol");
             console.log(data);
+            const token = jwt.sign({ id: data.id }, "secretkey");
+            return res.status(200).json({
+              msg: `Sign in with Username as DoctorID: ${docID}`,
+              token: token,
+              user: data
+            });
           })
           .catch((err) => {
             console.log(err);
           });
-        return res.status(200).json({
-          msg: `Sign in with Username: ${docID}`,
-          token: token,
-        });
       }
     })
     .catch((err) => {

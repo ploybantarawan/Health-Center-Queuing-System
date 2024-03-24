@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import session from "cookie-session";
-
+import morgan from "morgan";
 const app = express();
 const port = 3000;
 
@@ -19,7 +19,7 @@ app.use(cookieParser());
 app.use(session({ secret: "cat" }));
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(morgan('tiny'))
 // Routes
 import homeRouter from "./routes/home.js";
 import authRouter from "./routes/auth.js";

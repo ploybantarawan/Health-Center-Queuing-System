@@ -4,10 +4,10 @@ import Doc from "../model/doc.js";
 import User from "../model/user.js";
 import Staff from "../model/staff.js";
 import jwt from "jsonwebtoken";
-import { checkDoc, checkStaff } from "../middleware/tokenCheck.js";
+import { checkDoc, checkStaff, getToken } from "../middleware/tokenCheck.js";
 
-export const getAllReservation = (req, res) => {
-  const token = req.body.token;
+export const getAllReservation = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const month = req.body.month;
@@ -27,8 +27,8 @@ export const getAllReservation = (req, res) => {
   });
 };
 
-export const getTimeslot = (req, res) => {
-  const token = req.body.token;
+export const getTimeslot = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const date = req.body.date;
@@ -49,8 +49,9 @@ export const getTimeslot = (req, res) => {
   });
 };
 
-export const getAllDoctor = (req, res) => {
-  const token = req.body.token;
+export const getAllDoctor = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
+  console.log(req.headers);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     Doc.find()
@@ -68,8 +69,8 @@ export const getAllDoctor = (req, res) => {
   });
 };
 
-export const getDoctorTimetable = (req, res) => {
-  const token = req.body.token;
+export const getDoctorTimetable = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     const date = req.body.date;
@@ -104,8 +105,8 @@ export const getDoctorTimetable = (req, res) => {
   });
 };
 
-export const addDoctor = (req, res) => {
-  const token = req.body.token;
+export const addDoctor = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", async (err, userInfo) => {
     const isDoc = await checkDoc(userInfo.id);
     const isStaff = await checkStaff(userInfo.id);
@@ -139,8 +140,8 @@ export const addDoctor = (req, res) => {
   });
 };
 
-export const updateDoctor = (req, res) => {
-  const token = req.body.token;
+export const updateDoctor = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", async (err, userInfo) => {
     const isDoc = await checkDoc(userInfo.id);
     const isStaff = await checkStaff(userInfo.id);
@@ -158,8 +159,8 @@ export const updateDoctor = (req, res) => {
   });
 };
 
-export const getTodayPatientDoc = (req, res) => {
-  const token = req.body.token;
+export const getTodayPatientDoc = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", async (err, userInfo) => {
     const isDoc = await checkDoc(userInfo.id);
     const isStaff = await checkStaff(userInfo.id);

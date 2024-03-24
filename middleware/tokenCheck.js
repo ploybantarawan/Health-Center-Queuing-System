@@ -1,6 +1,16 @@
 import Staff from "../model/staff.js";
 import Doc from "../model/doc.js";
 
+export async function getToken(token) {
+  try {
+    console.log(token);
+    if (!token) return false;
+    return token.split('Bearer')[1].trim();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
 export async function checkStaff(id) {
   try {
     let result = false;

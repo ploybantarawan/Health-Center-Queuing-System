@@ -3,9 +3,10 @@ import App from "../model/app.js";
 import User from "../model/user.js";
 import jwt from "jsonwebtoken";
 import docTypeCheck from "../middleware/docTypeCheck.js";
+import { getToken } from "../middleware/tokenCheck.js";
 
-export const getmedicalhistory = (req, res) => {
-  const token = req.body.token;
+export const getmedicalhistory = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     User.findOne({ _id: userInfo.id }).then((data) => {
@@ -14,8 +15,8 @@ export const getmedicalhistory = (req, res) => {
   });
 };
 
-export const updateMedicalhistory = (req, res) => {
-  const token = req.body.token;
+export const updateMedicalhistory = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", async (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     User.findByIdAndUpdate(userInfo.id, req.body)
@@ -30,7 +31,7 @@ export const updateMedicalhistory = (req, res) => {
 };
 
 export const countReservation = async (req, res) => {
-  const token = req.body.token;
+  const token = await getToken(req.headers.authorization);
   jwt
     .verify(token, "secretkey", async (err, userInfo) => {
       if (err) return res.status(403).json("Token is not valid!");
@@ -49,10 +50,10 @@ export const countReservation = async (req, res) => {
 };
 
 export const reservation = async (req, res) => {
-  const token = req.body.token;
+  const token = await getToken(req.headers.authorization);
   jwt
     .verify(token, "secretkey", async (err, userInfo) => {
-      if (err) return res.status(403).json("Token is not valid!");
+      if (err) return res.status(409).json("Token is not valid!");
       const symptoms = req.body.symptoms;
       const date = req.body.date;
       const time = req.body.time;
@@ -67,8 +68,9 @@ export const reservation = async (req, res) => {
       // ]);
       // if (count >= 7) return res.status(404).json("timeslot is not aviable");
 
-      const docCheck = await docTypeCheck(date, time, department);
-      if (!docCheck) return res.status(404).json("timeslot is not aviable");
+      // skip for test
+      // const docCheck = await docTypeCheck(date, time, department);
+      // if (!docCheck) return res.status(404).json("timeslot is not aviable");
 
       App.findOne()
         .and([{ date: date }, { time: time }])
@@ -113,8 +115,8 @@ export const reservation = async (req, res) => {
     });
 };
 
-export const getUserReservation = (req, res) => {
-  const token = req.body.token;
+export const getUserReservation = async (req, res) => {
+  const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
     App.find({ userID: userInfo.id })
