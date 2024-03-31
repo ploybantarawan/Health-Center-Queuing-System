@@ -9,6 +9,7 @@ import {
   loginStaff,
   docSignin,
   loginDoc,
+  forgetPassword,
 } from "../controller/auth.js";
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.post("/loginStaff", loginStaff);
 router.post("/docSignin", docSignin);
 router.post("/loginDoc", loginDoc);
 router.post("/logout", logout);
+router.post("/forget_password", forgetPassword);
 
 export default router;

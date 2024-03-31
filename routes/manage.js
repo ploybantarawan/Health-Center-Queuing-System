@@ -7,15 +7,21 @@ import {
   addDoctor,
   updateDoctor,
   getTodayPatientDoc,
+  getAllDoctorTable,
+  getDoctor,
+  getDoctors,
 } from "../controller/manage.js";
 const router = express.Router();
 
+router.post("/getAllDoctorTable", getAllDoctorTable);
 router.get("/getAllReservation", getAllReservation);
-router.get("/getTimeslot", getTimeslot);
-router.get("/getAllDoctor", getAllDoctor);
+router.post("/getTimeslot", getTimeslot);
+router.post("/getAllDoctor", getAllDoctor);
 router.get("/getDoctorTimetable", getDoctorTimetable);
 router.get("/addDoctor", addDoctor);
-router.get("/updateDoctor", updateDoctor);
+router.post("/updateDoctor", updateDoctor);
 router.get("/getTodayPatientDoc", getTodayPatientDoc);
+router.post("/getDoctor", getDoctor);
+router.get("/getDoctors", getDoctors);
 
 export default router;

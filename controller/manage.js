@@ -5,6 +5,80 @@ import User from "../model/user.js";
 import Staff from "../model/staff.js";
 import jwt from "jsonwebtoken";
 import { checkDoc, checkStaff, getToken } from "../middleware/tokenCheck.js";
+import moment from "moment";
+
+export const getDoctors = async (req, res) => {
+  try {
+    const doctors = await Doc.find();
+    if (doctors) {
+      res.status(200).json(doctors);
+    } else {
+      res.status(200).json([]);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getDoctor = async (req, res) => {
+  try {
+    // console.log(req.headers);
+    const doctor = await Doc.findById(req.body.id);
+    if (doctor) {
+      res.status(200).json(doctor.workday);
+    } else {
+      res.status(200).json([]);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getAllDoctorTable = async (req, res) => {
+  try {
+    const token = await getToken(req.headers.authorization);
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+      if (err) return res.status(403).json("Token is not valid!");
+    });
+    const current_day_select = req.body.data.day_select;
+    const doctorID = req.body.data.doctorID;
+    // console.log(moment(current_day_select).weekday());
+    // const appointments = await App.find({ date: { $gte: first_day, $lte: last_day}});
+    console.log(req.body);
+    console.log(current_day_select, doctorID);
+    let doctors;
+    if (!doctorID) {
+      doctors = await Doc.find();
+    } else {
+      doctors = await Doc.find({ _id: doctorID });
+    }
+    console.log(doctors);
+    const daytoday = moment(current_day_select).weekday() ;
+    if (daytoday == 6 || daytoday == 7) {
+      return res.status(200).json(doctors)
+    }
+    const first_day = moment(current_day_select).weekday(1).format('YYYY-MM-DD');
+    const last_day = moment(current_day_select).weekday(5).format('YYYY-MM-DD');
+    for (let doctor of doctors) {
+      // console.log(doctor);
+      const appointmentToday = await App.find({
+        date: { $gte: first_day, $lte: last_day},
+        doctor: doctor.id,
+      });
+      // console.log(appointmentToday);
+      // console.log(appointmentToday);
+      appointmentToday.forEach((appoint) => {
+        
+        const work_day = doctor.workday.find(item => item.work_day == moment(appoint.date).format('dddd').toUpperCase());
+        let work_time = work_day.work_time.find(item => item.work_time == appoint.time);
+        work_time.appointment_count = work_time.appointment_count ? work_time.appointment_count + 1 : 1;
+      });
+    }
+    return res.status(200).json(doctors)
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export const getAllReservation = async (req, res) => {
   const token = await getToken(req.headers.authorization);
@@ -29,43 +103,62 @@ export const getAllReservation = async (req, res) => {
 
 export const getTimeslot = async (req, res) => {
   const token = await getToken(req.headers.authorization);
-  jwt.verify(token, "secretkey", (err, userInfo) => {
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
-    const date = req.body.date;
-    const time = req.body.time;
-    App.find()
-      .and({ date: date, time: time })
-      .then((data) => {
-        if (data.length) {
-          return res.status(200).json(data);
-        } else {
-          return res.status(201).json("No appointment");
+    const { doctorID, date, time } = req.body.data;
+    const users = await User.find();
+    const appointments = await App.aggregate([
+      {
+        $match: {
+          date: moment(date).format('YYYY-MM-DD'),
+          time,
+          doctor: doctorID,
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
-      });
+      }
+    ]);
+    const doctor = await Doc.findById(doctorID)
+    appointments.forEach(app => {
+      console.log();
+      app.user = users.find(item => item.id == app.userID)
+    })
+    if (appointments.length >= 1) {
+      console.log(1);
+      return res.status(200).json({doctor,appointments});
+    } else {
+      console.log(2);
+      return res.status(201).json("No appointment");
+    }
   });
 };
 
 export const getAllDoctor = async (req, res) => {
   const token = await getToken(req.headers.authorization);
   console.log(req.headers);
-  jwt.verify(token, "secretkey", (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!");
-    Doc.find()
-      .then((data) => {
-        if (data.length) {
-          return res.status(200).json(data);
-        } else {
-          return res.status(201).json("No doctor");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
+  const { date } = req.body;
+  const workday = moment(date).format('dddd').toUpperCase();
+  const workdate = moment(date).format('YYYY-MM-DD');
+  // console.log(workday, workdate);
+  jwt.verify(token, "secretkey", async (err, userInfo) => {
+    if (err) return res.status(409).json("Token is not valid!");
+    const doctors = await Doc.find({
+      "workday.work_day": workday,
+    });
+    for (let doctor of doctors) {
+      const appointmentToday = await App.find({
+        doctor: doctor.id,
+        date: workdate,
       });
+      appointmentToday.forEach((appoint) => {
+        const work_day = doctor.workday.find(item => item.work_day == moment(appoint.date).format('dddd').toUpperCase());
+        let work_time = work_day.work_time.find(item => item.work_time == appoint.time);
+        work_time.appointment_count = work_time.appointment_count ? work_time.appointment_count + 1 : 1;
+      });
+    }
+    if (doctors.length) {
+      return res.status(200).json(doctors);
+    } else {
+      return res.status(201).json("No doctor");
+    }
   });
 };
 
@@ -143,19 +236,34 @@ export const addDoctor = async (req, res) => {
 export const updateDoctor = async (req, res) => {
   const token = await getToken(req.headers.authorization);
   jwt.verify(token, "secretkey", async (err, userInfo) => {
-    const isDoc = await checkDoc(userInfo.id);
-    const isStaff = await checkStaff(userInfo.id);
-    if (!isDoc && !isStaff) return res.status(403).json("Unauthorise");
+    // console.log(userInfo);
+    // const isDoc = await checkDoc(userInfo.id);
+    // const isStaff = await checkStaff(userInfo.id);
+    // if (!isDoc && !isStaff) return res.status(403).json("Unauthorise");
 
-    const docID = req.body.docID;
-    Doc.findOneAndUpdate({ docID: docID }, req.body)
-      .then((data) => {
-        return res.status(200).json("update successful");
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
-      });
+    try {
+      const { id, isWork, work_day, work_time } = req.body;
+      console.log(id, isWork, work_day, work_time);
+      const filter = { "_id": id }; // ตัวกรองเอกสาร
+      const updateDocument = {
+          $set: { "workday.$[day].work_time.$[time].isWork": isWork } // ค่าที่ต้องการอัปเดต
+      };
+
+      const options = {
+          arrayFilters: [{ "day.work_day": work_day }, { "time.work_time": work_time }] // เงื่อนไขในการอัปเดต work_time ที่มี work_time เป็น "TIME_4" ใน FRIDAY
+      };
+
+      const result = await Doc.updateOne(filter, updateDocument, options);
+      console.log(`${result.modifiedCount} document(s) was/were updated.`);
+      if (result.modifiedCount >= 1) {
+        res.status(200).json("อัพเดตสำเร็จ " + result.modifiedCount);
+      } else {
+        res.status(409).json("อัพเดตไม่สำเร็จ");
+      }
+  } catch (error) {
+    console.log(error);
+    res.status(409).json("อัพเดตไม่สำเร็จ");
+  }
   });
 };
 

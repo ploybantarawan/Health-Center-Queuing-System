@@ -3,8 +3,8 @@ import { Schema } from "mongoose";
 
 const appSchema = new Schema({
   userID: { type: String, required: true },
-  name: { type: String, required: true },
-  surname: { type: String, required: true },
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
   symptoms: { type: String, required: true },
   cause: { type: String, required: true },
   period: { type: String, required: true },

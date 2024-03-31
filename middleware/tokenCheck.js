@@ -3,7 +3,6 @@ import Doc from "../model/doc.js";
 
 export async function getToken(token) {
   try {
-    console.log(token);
     if (!token) return false;
     return token.split('Bearer')[1].trim();
   } catch (error) {
