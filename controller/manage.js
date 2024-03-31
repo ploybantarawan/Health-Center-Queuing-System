@@ -44,15 +44,12 @@ export const getAllDoctorTable = async (req, res) => {
     const doctorID = req.body.data.doctorID;
     // console.log(moment(current_day_select).weekday());
     // const appointments = await App.find({ date: { $gte: first_day, $lte: last_day}});
-    console.log(req.body);
-    console.log(current_day_select, doctorID);
     let doctors;
     if (!doctorID) {
       doctors = await Doc.find();
     } else {
       doctors = await Doc.find({ _id: doctorID });
     }
-    console.log(doctors);
     const daytoday = moment(current_day_select).weekday() ;
     if (daytoday == 6 || daytoday == 7) {
       return res.status(200).json(doctors)
@@ -118,14 +115,11 @@ export const getTimeslot = async (req, res) => {
     ]);
     const doctor = await Doc.findById(doctorID)
     appointments.forEach(app => {
-      console.log();
       app.user = users.find(item => item.id == app.userID)
     })
     if (appointments.length >= 1) {
-      console.log(1);
       return res.status(200).json({doctor,appointments});
     } else {
-      console.log(2);
       return res.status(201).json("No appointment");
     }
   });
@@ -133,7 +127,7 @@ export const getTimeslot = async (req, res) => {
 
 export const getAllDoctor = async (req, res) => {
   const token = await getToken(req.headers.authorization);
-  console.log(req.headers);
+  // console.log(req.headers);
   const { date } = req.body;
   const workday = moment(date).format('dddd').toUpperCase();
   const workdate = moment(date).format('YYYY-MM-DD');

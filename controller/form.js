@@ -65,7 +65,7 @@ export const reservation = async (req, res) => {
       const period = req.body.period;
       const fever = req.body.fever || false;
       let appointment_count = 0;
-      console.log(req.body);
+      // console.log(req.body);
       // const count = await App.find().countDocuments([
       //   { date: date },
       //   { time: time },
@@ -99,7 +99,7 @@ export const reservation = async (req, res) => {
           })
         }
       })
-      console.log(appointment_count, doctorData[0].appointment_max);
+      // console.log(appointment_count, doctorData[0].appointment_max);
       if (appointment_count >= doctorData[0].appointment_max ) {
         return  res
         .status(401)
@@ -110,7 +110,7 @@ export const reservation = async (req, res) => {
         .then((data) => {
           User.find({ _id: userInfo.id })
             .then((data) => {
-              console.log(data);
+              // console.log(data);
               App.create({
                 userID: userInfo.id,
                 first_name: data[0].first_name,
